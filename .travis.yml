@@ -3,7 +3,7 @@ language: bash
 env:
   global:
     - DOCKER_CLI_EXPERIMENTAL=enabled
-    - DOCKER_PLATFORMS=linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6,linux/ppc64le,linux/s390x
+    - DOCKER_PLATFORMS=linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6
 
 services:
   - docker
@@ -13,7 +13,7 @@ before_install:
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   - travis_retry sudo apt-get update
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
-  - docker run --privileged linuxkit/binfmt:v0.7  # Install qemu support
+  - docker run --privileged linuxkit/binfmt:v0.8  # Install qemu support
   - docker buildx create --name mybuild --use  # Enable multi-arch driver
   - docker login --username "$DOCKER_USERNAME" --password-stdin <<<"$DOCKER_PASSWORD"
 
@@ -28,4 +28,4 @@ deploy:
     script: docker buildx build --platform="$DOCKER_PLATFORMS" --push -t "johnstarich/env2config:latest" .
     on:
       repo: JohnStarich/env2config
-      branch: main
+      branch: test
