@@ -51,6 +51,9 @@ func newConfig(name string, env map[string]string, registry *registry) (Config, 
 		registry: registry,
 	}
 	err := envconfig.Process(name, &config)
+	if err != nil {
+		return Config{}, err
+	}
 	config.Name = name
 	config.Opts.Inputs = filterEnvPrefix(name+"_opts_in", env)
 	config.Values = configEnvValues(name, env)
@@ -66,7 +69,7 @@ func newConfig(name string, env map[string]string, registry *registry) (Config, 
 	if len(missingInputs) > 0 {
 		return Config{}, errors.Errorf("Missing required environment variables: %s", strings.Join(missingInputs, ", "))
 	}
-	return config, err
+	return config, nil
 }
 
 func (c Config) Write() error {
