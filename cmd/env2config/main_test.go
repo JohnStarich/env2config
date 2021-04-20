@@ -92,3 +92,32 @@ bar:
 no_value:
 `)+"\n", string(buf))
 }
+
+func TestRunInputs(t *testing.T) {
+	t.Run("input missing", func(t *testing.T) {
+		dir := t.TempDir()
+		tempYaml := filepath.Join(dir, "some.yaml")
+		setEnv(t, "E2C_CONFIGS", "myprefix")
+		setEnv(t, "MYPREFIX_OPTS_FILE", tempYaml)
+		setEnv(t, "MYPREFIX_OPTS_FORMAT", "yaml")
+		setEnv(t, "MYPREFIX_OPTS_IN_url", "REQUIRED_URL")
+		assert.EqualError(t, run(nil), `Environment variable "REQUIRED_URL" is required`)
+	})
+
+	t.Run("input provided", func(t *testing.T) {
+		dir := t.TempDir()
+		tempYaml := filepath.Join(dir, "some.yaml")
+		setEnv(t, "E2C_CONFIGS", "myprefix")
+		setEnv(t, "MYPREFIX_OPTS_FILE", tempYaml)
+		setEnv(t, "MYPREFIX_OPTS_FORMAT", "yaml")
+		setEnv(t, "MYPREFIX_OPTS_IN_url", "REQUIRED_URL")
+		setEnv(t, "REQUIRED_URL", "http://localhost/")
+
+		assert.NoError(t, run(nil))
+		buf, err := ioutil.ReadFile(tempYaml)
+		require.NoError(t, err)
+		assert.Equal(t, strings.TrimSpace(`
+url: http://localhost/
+`)+"\n", string(buf))
+	})
+}

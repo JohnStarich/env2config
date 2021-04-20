@@ -12,7 +12,7 @@ import (
 
 type Config struct {
 	Name   string
-	Opts   Opts
+	Opts   Opts // NAME_OPTS_*
 	Values Values
 
 	registry *registry
@@ -22,6 +22,8 @@ type Opts struct {
 	File         string `required:"true"`
 	Format       string `required:"true"`
 	TemplateFile string `split_words:"true"`
+
+	Inputs Values // NAME_OPTS_IN_*
 }
 
 type Values map[string]string
@@ -50,7 +52,15 @@ func newConfig(name string, env map[string]string, registry *registry) (Config, 
 	}
 	err := envconfig.Process(name, &config)
 	config.Name = name
+	config.Opts.Inputs = filterEnvPrefix(name+"_opts_in", env)
 	config.Values = configEnvValues(name, env)
+	for dest, src := range config.Opts.Inputs {
+		value, isSet := env[src]
+		if !isSet {
+			return Config{}, errors.Errorf("Environment variable %q is required", src)
+		}
+		config.Values[dest] = value
+	}
 	return config, err
 }
 

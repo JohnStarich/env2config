@@ -12,6 +12,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func setEnv(t *testing.T, key, value string) {
+	prev, exists := os.LookupEnv(key)
+	require.NoError(t, os.Setenv(key, value))
+	t.Cleanup(func() {
+		if exists {
+			require.NoError(t, os.Setenv(key, prev))
+		} else {
+			require.NoError(t, os.Unsetenv(key))
+		}
+	})
+}
+
 type gorpMarshaler struct {
 	marshaledValue  interface{}
 	marshalErr      error
@@ -31,26 +43,39 @@ func (g *gorpMarshaler) Unmarshal(r io.Reader, value interface{}) error {
 
 func TestNew(t *testing.T) {
 	RegisterFormat("gorp", &gorpMarshaler{})
-	require.NoError(t, os.Setenv("MYPREFIX_OPTS_FILE", "/some/path.gorp"))
-	require.NoError(t, os.Setenv("MYPREFIX_OPTS_FORMAT", "gorp"))
-	require.NoError(t, os.Setenv("MYPREFIX_FOO", "bar"))
-	require.NoError(t, os.Setenv("MYPREFIX_bAz0", "bit"))
+	setEnv(t, "MYPREFIX_OPTS_FILE", "/some/path.gorp")
+	setEnv(t, "MYPREFIX_OPTS_FORMAT", "gorp")
 
 	t.Run("happy path", func(t *testing.T) {
+		setEnv(t, "MYPREFIX_FOO", "bar")
+		setEnv(t, "MYPREFIX_bAz0", "bit")
+		setEnv(t, "MYPREFIX_OPTS_IN_port", "BIND_PORT")
+		setEnv(t, "BIND_PORT", "8080")
+
 		config, err := New("MYPREFIX")
 		assert.Equal(t, Config{
 			Name: "myprefix",
 			Opts: Opts{
 				File:   "/some/path.gorp",
 				Format: "gorp",
+				Inputs: map[string]string{
+					"port": "BIND_PORT",
+				},
 			},
 			Values: map[string]string{
 				"FOO":  "bar",
 				"bAz0": "bit",
+				"port": "8080",
 			},
 			registry: defaultRegistry,
 		}, config)
 		assert.NoError(t, err)
+	})
+
+	t.Run("missing required var", func(t *testing.T) {
+		setEnv(t, "MYPREFIX_OPTS_IN_port", "BIND_PORT")
+		_, err := New("MYPREFIX")
+		assert.EqualError(t, err, `Environment variable "BIND_PORT" is required`)
 	})
 
 	t.Run("missing config name", func(t *testing.T) {
