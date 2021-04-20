@@ -75,7 +75,7 @@ func TestNew(t *testing.T) {
 	t.Run("missing required var", func(t *testing.T) {
 		setEnv(t, "MYPREFIX_OPTS_IN_port", "BIND_PORT")
 		_, err := New("MYPREFIX")
-		assert.EqualError(t, err, `Missing required environment variables: BIND_PORT`)
+		assert.EqualError(t, err, `myprefix: Missing required environment variables: BIND_PORT`)
 	})
 
 	t.Run("missing config name", func(t *testing.T) {
@@ -85,7 +85,7 @@ func TestNew(t *testing.T) {
 
 	t.Run("bad config name", func(t *testing.T) {
 		_, err := New("not a valid name")
-		assert.EqualError(t, err, `Config names must only use letters or numbers: "not a valid name"`)
+		assert.EqualError(t, err, `not a valid name: Config names must only use letters or numbers: "not a valid name"`)
 	})
 }
 

@@ -33,7 +33,11 @@ var _ envconfig.Setter = Values{}
 func (v Values) Set(value string) error { return nil }
 
 func New(name string) (Config, error) {
-	return newConfig(name, parseEnv(os.Environ()), defaultRegistry)
+	c, err := newConfig(name, parseEnv(os.Environ()), defaultRegistry)
+	if name != "" {
+		err = errors.Wrap(err, strings.ToLower(name))
+	}
+	return c, err
 }
 
 func newConfig(name string, env map[string]string, registry *registry) (Config, error) {
