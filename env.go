@@ -17,7 +17,7 @@ func parseEnv(envPairs []string) map[string]string {
 	return env
 }
 
-func configValues(name string, env map[string]string) map[string]string {
+func configEnvValues(name string, env map[string]string) map[string]string {
 	env = filterEnvPrefix(name, env)
 	removeEnvOpts(env)
 	return env

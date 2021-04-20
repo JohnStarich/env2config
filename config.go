@@ -1,7 +1,6 @@
 package env2config
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -20,8 +19,9 @@ type Config struct {
 }
 
 type Opts struct {
-	File   string `required:"true"`
-	Format string `required:"true"`
+	File         string `required:"true"`
+	Format       string `required:"true"`
+	TemplateFile string `split_words:"true"`
 }
 
 type Values map[string]string
@@ -50,12 +50,24 @@ func newConfig(name string, env map[string]string, registry *registry) (Config, 
 	}
 	err := envconfig.Process(name, &config)
 	config.Name = name
-	config.Values = configValues(name, env)
+	config.Values = configEnvValues(name, env)
 	return config, err
 }
 
 func (c Config) Write() error {
-	values := c.writableValues()
+	var template map[string]interface{}
+	if c.Opts.TemplateFile != "" {
+		f, err := os.Open(c.Opts.TemplateFile)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		err = c.registry.UnmarshalFormat(c.Opts.Format, f, &template)
+		if err != nil {
+			return err
+		}
+	}
+	values := c.writableValues(template)
 	f, err := os.OpenFile(c.Opts.File, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
@@ -64,8 +76,11 @@ func (c Config) Write() error {
 	return c.registry.MarshalFormat(c.Opts.Format, f, values)
 }
 
-func (c Config) writableValues() interface{} {
-	result := make(map[string]interface{})
+func (c Config) writableValues(template map[string]interface{}) interface{} {
+	result := template
+	if result == nil {
+		result = make(map[string]interface{})
+	}
 	for key, value := range c.Values {
 		current := result
 		keys := parseKeyPath(key)
@@ -75,7 +90,19 @@ func (c Config) writableValues() interface{} {
 			if !exists {
 				current[key] = make(map[string]interface{})
 			}
-			current = current[key].(map[string]interface{})
+			switch next := current[key].(type) {
+			case map[string]interface{}:
+				current = next
+			case []interface{}:
+				nextMap := arrayToMap(next)
+				current[key] = nextMap
+				current = nextMap
+			default:
+				// unrecognized type, just do simple override
+				nextMap := make(map[string]interface{})
+				current[key] = nextMap
+				current = nextMap
+			}
 		}
 		lastKey := keys[len(keys)-1]
 		current[lastKey] = value
@@ -123,6 +150,13 @@ func mapsToArrays(m map[string]interface{}) interface{} {
 		}
 		values[index] = value
 	}
-	fmt.Println("flattening", values)
 	return values
+}
+
+func arrayToMap(a []interface{}) map[string]interface{} {
+	m := make(map[string]interface{}, len(a))
+	for index, value := range a {
+		m[strconv.FormatInt(int64(index), 10)] = value
+	}
+	return m
 }

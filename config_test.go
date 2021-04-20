@@ -2,6 +2,7 @@ package env2config
 
 import (
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -12,13 +13,20 @@ import (
 )
 
 type gorpMarshaler struct {
-	marshaledValue interface{}
-	marshalErr     error
+	marshaledValue  interface{}
+	marshalErr      error
+	unmarshalResult map[string]interface{}
+	unmarshalErr    error
 }
 
 func (g *gorpMarshaler) Marshal(w io.Writer, value interface{}) error {
 	g.marshaledValue = value
 	return g.marshalErr
+}
+
+func (g *gorpMarshaler) Unmarshal(r io.Reader, value interface{}) error {
+	*value.(*map[string]interface{}) = g.unmarshalResult
+	return g.unmarshalErr
 }
 
 func TestNew(t *testing.T) {
@@ -59,13 +67,16 @@ func TestNew(t *testing.T) {
 func TestWrite(t *testing.T) {
 	dir := t.TempDir()
 	tempFile := filepath.Join(dir, "temp.gorp")
+	templateFile := filepath.Join(dir, "template.gorp")
+	require.NoError(t, ioutil.WriteFile(templateFile, nil, 0600))
 
 	for _, tc := range []struct {
-		description   string
-		config        Config
-		expectMarshal interface{}
-		marshalErr    error
-		expectErr     string
+		description     string
+		config          Config
+		unmarshalResult map[string]interface{}
+		expectMarshal   interface{}
+		marshalErr      error
+		expectErr       string
 	}{
 		{
 			description: "one pair",
@@ -121,14 +132,96 @@ func TestWrite(t *testing.T) {
 			marshalErr: errors.New("some error"),
 			expectErr:  "some error",
 		},
+		{
+			description: "template file defaults",
+			config: Config{
+				Opts: Opts{
+					Format:       "gorp",
+					File:         tempFile,
+					TemplateFile: templateFile,
+				},
+				Values: map[string]string{
+					"A": "B",
+				},
+			},
+			unmarshalResult: map[string]interface{}{
+				"C": "D",
+			},
+			expectMarshal: map[string]interface{}{
+				"A": "B",
+				"C": "D",
+			},
+		},
+		{
+			description: "nested template fields",
+			config: Config{
+				Opts: Opts{
+					Format:       "gorp",
+					File:         tempFile,
+					TemplateFile: templateFile,
+				},
+				Values: map[string]string{
+					"A.B.C": "1",
+					"F.0.I": "2",
+				},
+			},
+			unmarshalResult: map[string]interface{}{
+				"A": map[string]interface{}{
+					"B": map[string]interface{}{
+						"C": "D",
+						"E": "F",
+					},
+				},
+				"F": []interface{}{
+					map[string]interface{}{
+						"G": "H",
+						"I": "J",
+					},
+					"K",
+				},
+			},
+			expectMarshal: map[string]interface{}{
+				"A": map[string]interface{}{
+					"B": map[string]interface{}{
+						"C": "1",
+						"E": "F",
+					},
+				},
+				"F": []interface{}{
+					map[string]interface{}{
+						"G": "H",
+						"I": "2",
+					},
+					"K",
+				},
+			},
+		},
+		{
+			description: "nested key array paths",
+			config: Config{
+				Opts: Opts{Format: "gorp", File: tempFile},
+				Values: map[string]string{
+					"A.B.0.C": "1",
+				},
+			},
+			expectMarshal: map[string]interface{}{
+				"A": map[string]interface{}{
+					"B": []interface{}{
+						map[string]interface{}{
+							"C": "1",
+						},
+					},
+				},
+			},
+		},
 	} {
 		t.Run(tc.description, func(t *testing.T) {
-			marshaler := &gorpMarshaler{marshalErr: tc.marshalErr}
-			tc.config.registry = &registry{
-				marshalers: map[string]Marshaler{
-					"gorp": marshaler,
-				},
+			marshaler := &gorpMarshaler{
+				marshalErr:      tc.marshalErr,
+				unmarshalResult: tc.unmarshalResult,
 			}
+			tc.config.registry = newRegistry()
+			tc.config.registry.RegisterFormat("gorp", marshaler)
 
 			err := tc.config.Write()
 			if tc.expectErr != "" {

@@ -135,7 +135,7 @@ func TestConfigValues(t *testing.T) {
 		},
 	} {
 		t.Run(tc.description, func(t *testing.T) {
-			assert.Equal(t, tc.expect, configValues(tc.configName, tc.env))
+			assert.Equal(t, tc.expect, configEnvValues(tc.configName, tc.env))
 		})
 	}
 }

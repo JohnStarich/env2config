@@ -16,3 +16,7 @@ type jsonMarshaler struct{}
 func (*jsonMarshaler) Marshal(w io.Writer, value interface{}) error {
 	return json.NewEncoder(w).Encode(value)
 }
+
+func (*jsonMarshaler) Unmarshal(r io.Reader, dest interface{}) error {
+	return json.NewDecoder(r).Decode(dest)
+}
