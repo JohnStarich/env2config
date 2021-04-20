@@ -54,12 +54,17 @@ func newConfig(name string, env map[string]string, registry *registry) (Config, 
 	config.Name = name
 	config.Opts.Inputs = filterEnvPrefix(name+"_opts_in", env)
 	config.Values = configEnvValues(name, env)
+
+	var missingInputs []string
 	for dest, src := range config.Opts.Inputs {
 		value, isSet := env[src]
 		if !isSet {
-			return Config{}, errors.Errorf("Environment variable %q is required", src)
+			missingInputs = append(missingInputs, src)
 		}
 		config.Values[dest] = value
+	}
+	if len(missingInputs) > 0 {
+		return Config{}, errors.Errorf("Missing required environment variables: %s", strings.Join(missingInputs, ", "))
 	}
 	return config, err
 }

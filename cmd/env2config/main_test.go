@@ -101,7 +101,7 @@ func TestRunInputs(t *testing.T) {
 		setEnv(t, "MYPREFIX_OPTS_FILE", tempYaml)
 		setEnv(t, "MYPREFIX_OPTS_FORMAT", "yaml")
 		setEnv(t, "MYPREFIX_OPTS_IN_url", "REQUIRED_URL")
-		assert.EqualError(t, run(nil), `Environment variable "REQUIRED_URL" is required`)
+		assert.EqualError(t, run(nil), `Missing required environment variables: REQUIRED_URL`)
 	})
 
 	t.Run("input provided", func(t *testing.T) {
