@@ -2,6 +2,7 @@ package env2config
 
 import (
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"unicode"
@@ -71,6 +72,7 @@ func newConfig(name string, env map[string]string, registry *registry) (Config, 
 		config.Values[dest] = value
 	}
 	if len(missingInputs) > 0 {
+		sort.Strings(missingInputs)
 		return Config{}, errors.Errorf("Missing required environment variables: %s", strings.Join(missingInputs, ", "))
 	}
 	return config, nil
