@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/johnstarich/env2config"
 	"github.com/kelseyhightower/envconfig"
@@ -30,10 +31,17 @@ func run(args []string) error {
 	if err != nil {
 		return err
 	}
-	err = writeConfigs(app)
-	if err != nil {
-		return err
+	var configErrs []string
+	for _, configName := range app.Configs {
+		err := writeConfig(configName)
+		if err != nil {
+			configErrs = append(configErrs, err.Error())
+		}
 	}
+	if len(configErrs) > 0 {
+		return errors.New("Failed to generate configs:\n\n" + strings.Join(configErrs, "\n\n"))
+	}
+
 	if len(args) == 0 {
 		return nil
 	}
@@ -44,16 +52,11 @@ func run(args []string) error {
 	return cmd.Run()
 }
 
-func writeConfigs(app App) error {
-	for _, configName := range app.Configs {
-		config, err := env2config.New(configName)
-		if err != nil {
-			return err
-		}
-		err = config.Write()
-		if err != nil {
-			return errors.Wrap(err, config.Name)
-		}
+func writeConfig(name string) error {
+	config, err := env2config.New(name)
+	if err != nil {
+		return err
 	}
-	return nil
+	err = config.Write()
+	return errors.Wrap(err, config.Name)
 }
