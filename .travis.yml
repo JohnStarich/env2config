@@ -28,4 +28,4 @@ deploy:
     script: docker buildx build --platform="$DOCKER_PLATFORMS" --push -t "johnstarich/env2config:latest" .
     on:
       repo: JohnStarich/env2config
-      branch: test
+      branch: main
