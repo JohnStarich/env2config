@@ -71,6 +71,7 @@ bar:
     array:
         - key: some default
     default_key: default_value
+no_value:
 `)), 0600))
 
 	assert.NoError(t, run(nil))
@@ -88,5 +89,6 @@ bar:
     default_key: default_value
     nested:
         key: value
+no_value:
 `)+"\n", string(buf))
 }
