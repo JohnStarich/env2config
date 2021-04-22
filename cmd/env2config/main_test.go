@@ -127,3 +127,28 @@ url: http://localhost/
 `)+"\n", string(buf))
 	})
 }
+
+func TestRunTypes(t *testing.T) {
+	dir := t.TempDir()
+	tmpYaml := filepath.Join(dir, "some.yaml")
+	setEnv(t, "E2C_CONFIGS", "myprefix")
+	setEnv(t, "MYPREFIX_OPTS_FILE", tmpYaml)
+	setEnv(t, "MYPREFIX_OPTS_FORMAT", "yaml")
+	setEnv(t, "MYPREFIX_bar.nested.key", "value")
+	setEnv(t, "MYPREFIX_bar.array.0.other_key", "1")
+	setEnv(t, "MYPREFIX_bar.array.1.key", "true")
+	setEnv(t, "MYPREFIX_bar.array.2", "42")
+
+	assert.NoError(t, run(nil))
+	buf, err := ioutil.ReadFile(tmpYaml)
+	require.NoError(t, err)
+	assert.Equal(t, strings.TrimSpace(`
+bar:
+    array:
+        - other_key: 1
+        - key: true
+        - 42
+    nested:
+        key: value
+`)+"\n", string(buf))
+}
