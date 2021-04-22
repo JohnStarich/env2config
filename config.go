@@ -2,6 +2,7 @@ package env2config
 
 import (
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -81,6 +82,10 @@ func newConfig(name string, env map[string]string, registry *registry) (Config, 
 func (c Config) Write() error {
 	var template map[string]interface{}
 	if c.Opts.TemplateFile != "" {
+		err := os.MkdirAll(filepath.Dir(c.Opts.TemplateFile), 0755)
+		if err != nil {
+			return err
+		}
 		f, err := os.Open(c.Opts.TemplateFile)
 		if err != nil {
 			return err
