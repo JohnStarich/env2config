@@ -13,21 +13,41 @@ _If you already have an entrypoint, inject env2config just before the first arg:
 
 Then add your configs, for example:
 ```Dockerfile
-ENV E2C_CONFIGS=myconf
+# Comma separated config names
+ENV E2C_CONFIGS=myconf,other
+
+# <CONFIG>_ are prefixed environment variables.
+# <CONFIG>_OPTS_ are generation settings for this config.
+# The FILE and FORMAT opts are required, TEMPLATE is optional.
+# Supported formats: yaml, json, toml, ini
 ENV MYCONF_OPTS_FILE=/output/my-config.yaml
 ENV MYCONF_OPTS_FORMAT=yaml
-
 ENV MYCONF_bind_url=http://example.com
 ENV MYCONF_db.address=db.example.com
+
+ENV OTHER_OPTS_FILE=/output/other.yaml
+ENV OTHER_OPTS_FORMAT=yaml
+ENV OTHER_addresses.0=http://replica0.example.com
+ENV OTHER_addresses.1=http://replica1.example.com
 ```
 
-At runtime, `env2config` will generate a new yaml file from environment variables and output it to `/output/my-config.yaml`.
-The above configuration will generate:
+At runtime, `env2config` will generate the above configuration with 2 new yaml files from environment variables and output it to `/output/my-config.yaml` and `/output/other.yaml`.
+
+`/output/my-config.yaml`:
 ```yaml
 bind_url: http://example.com
 db:
   address: db.example.com
 ```
+
+`/output/other.yaml`:
+```yaml
+addresses:
+    - http://replica0.example.com
+    - http://replica1.example.com
+```
+
+To require an environment variable with a custom source, use the pattern `<CONFIG_NAME>`
 
 ## Projects using env2config
 
