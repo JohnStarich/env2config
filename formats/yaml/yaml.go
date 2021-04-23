@@ -7,6 +7,7 @@ import (
 	"unicode"
 
 	"github.com/johnstarich/env2config"
+	"github.com/johnstarich/env2config/formats/internal"
 	"gopkg.in/yaml.v3"
 )
 
@@ -17,32 +18,13 @@ func init() {
 type yamlMarshaler struct{}
 
 func (*yamlMarshaler) Marshal(w io.Writer, value interface{}) error {
-	value = walk(value, parseValues)
-	value = walk(value, omitNils)
+	value = internal.Walk(value, parseValues)
+	value = internal.Walk(value, omitNils)
 	return yaml.NewEncoder(w).Encode(value)
 }
 
 func (*yamlMarshaler) Unmarshal(r io.Reader, dest interface{}) error {
 	return yaml.NewDecoder(r).Decode(dest)
-}
-
-func walk(v interface{}, fn func(v interface{}) interface{}) interface{} {
-	switch v := v.(type) {
-	case map[string]interface{}:
-		newMap := make(map[string]interface{}, len(v))
-		for key, value := range v {
-			newMap[key] = walk(value, fn)
-		}
-		return fn(newMap)
-	case []interface{}:
-		newSlice := make([]interface{}, len(v))
-		for index, value := range v {
-			newSlice[index] = walk(value, fn)
-		}
-		return fn(newSlice)
-	default:
-		return fn(v)
-	}
 }
 
 func omitNils(v interface{}) interface{} {

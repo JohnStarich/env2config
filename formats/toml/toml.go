@@ -8,14 +8,12 @@ import (
 )
 
 func init() {
-	toml := &tomlMarshaler{}
-	env2config.RegisterFormat("ini", toml)
-	env2config.RegisterFormat("toml", toml)
+	env2config.RegisterFormat("toml", &tomlMarshaler{})
 }
 
 type tomlMarshaler struct{}
 
-func (*tomlMarshaler) Marshal(w io.Writer, value interface{}) error {
+func (t *tomlMarshaler) Marshal(w io.Writer, value interface{}) error {
 	return toml.NewEncoder(w).Encode(value)
 }
 

@@ -67,13 +67,15 @@ bar:
 		{
 			format: "ini",
 			expect: `
-FOO = "bar"
-bAz0 = "bit"
+FOO  = bar
+bAz0 = bit
 
 [bar]
   array = ["value", "other"]
-  [bar.nested]
-    key = "value"
+
+[bar.nested]
+  key = value
+
 `,
 		},
 		{
@@ -108,7 +110,7 @@ bAz0 = "bit"
 			assert.NoError(t, run(nil))
 			buf, err := ioutil.ReadFile(tempYaml)
 			require.NoError(t, err)
-			assert.Equal(t, strings.TrimSpace(tc.expect)+"\n", string(buf))
+			assert.Equal(t, strings.TrimLeft(tc.expect, "\n"), string(buf))
 		})
 	}
 }
