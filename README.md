@@ -16,12 +16,12 @@ Then add your configs, for example:
 # Comma separated config names
 ENV E2C_CONFIGS=myconf,other
 
-# <CONFIG>_ are prefixed environment variables.
-# <CONFIG>_OPTS_ are generation settings for this config.
+# <name>_OPTS_<setting> are generation settings for this config.
 # The FILE and FORMAT opts are required, TEMPLATE is optional.
 # Supported formats: yaml, json, toml, ini
 ENV MYCONF_OPTS_FILE=/output/my-config.yaml
 ENV MYCONF_OPTS_FORMAT=yaml
+# <name>_<key> are mappings from config file keys to environment variables.
 ENV MYCONF_bind_url=http://example.com
 ENV MYCONF_db.address=db.example.com
 
@@ -47,7 +47,8 @@ addresses:
     - http://replica1.example.com
 ```
 
-To require an environment variable with a custom source, use the pattern `<CONFIG_NAME>`
+To require an environment variable with a custom source, use the pattern `<name>_OPTS_IN_<key>=<env>`.
+For example, `MYCONF_OPTS_IN_url=BIND_URL` will require the `$BIND_URL` variable, then set it in the myconf config as `url`.
 
 ## Projects using env2config
 
