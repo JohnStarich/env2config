@@ -14,7 +14,10 @@ func init() {
 type jsonMarshaler struct{}
 
 func (*jsonMarshaler) Marshal(w io.Writer, value interface{}) error {
-	return json.NewEncoder(w).Encode(value)
+	enc := json.NewEncoder(w)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "\t")
+	return enc.Encode(value)
 }
 
 func (*jsonMarshaler) Unmarshal(r io.Reader, dest interface{}) error {

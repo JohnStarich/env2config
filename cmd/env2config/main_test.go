@@ -24,21 +24,15 @@ func setEnv(t *testing.T, key, value string) {
 }
 
 func TestRun(t *testing.T) {
-	dir := t.TempDir()
-	tempYaml := filepath.Join(dir, "some.yaml")
-	setEnv(t, "E2C_CONFIGS", "myprefix")
-	setEnv(t, "MYPREFIX_OPTS_FILE", tempYaml)
-	setEnv(t, "MYPREFIX_OPTS_FORMAT", "yaml")
-	setEnv(t, "MYPREFIX_FOO", "bar")
-	setEnv(t, "MYPREFIX_bAz0", "bit")
-	setEnv(t, "MYPREFIX_bar.nested.key", "value")
-	setEnv(t, "MYPREFIX_bar.array.0", "value")
-	setEnv(t, "MYPREFIX_bar.array.1.key", "value")
-
-	assert.NoError(t, run(nil))
-	buf, err := ioutil.ReadFile(tempYaml)
-	require.NoError(t, err)
-	assert.Equal(t, strings.TrimSpace(`
+	for _, tc := range []struct {
+		format      string
+		mixedArrays bool
+		expect      string
+	}{
+		{
+			format:      "yaml",
+			mixedArrays: true,
+			expect: `
 FOO: bar
 bAz0: bit
 bar:
@@ -47,7 +41,76 @@ bar:
         - key: value
     nested:
         key: value
-`)+"\n", string(buf))
+`,
+		},
+		{
+			format:      "json",
+			mixedArrays: true,
+			expect: `
+{
+	"FOO": "bar",
+	"bAz0": "bit",
+	"bar": {
+		"array": [
+			"value",
+			{
+				"key": "value"
+			}
+		],
+		"nested": {
+			"key": "value"
+		}
+	}
+}
+`,
+		},
+		{
+			format: "ini",
+			expect: `
+FOO = "bar"
+bAz0 = "bit"
+
+[bar]
+  array = ["value", "other"]
+  [bar.nested]
+    key = "value"
+`,
+		},
+		{
+			format: "toml",
+			expect: `
+FOO = "bar"
+bAz0 = "bit"
+
+[bar]
+  array = ["value", "other"]
+  [bar.nested]
+    key = "value"
+`,
+		},
+	} {
+		t.Run(tc.format, func(t *testing.T) {
+			dir := t.TempDir()
+			tempYaml := filepath.Join(dir, "some.yaml")
+			setEnv(t, "E2C_CONFIGS", "myprefix")
+			setEnv(t, "MYPREFIX_OPTS_FILE", tempYaml)
+			setEnv(t, "MYPREFIX_OPTS_FORMAT", tc.format)
+			setEnv(t, "MYPREFIX_FOO", "bar")
+			setEnv(t, "MYPREFIX_bAz0", "bit")
+			setEnv(t, "MYPREFIX_bar.nested.key", "value")
+			setEnv(t, "MYPREFIX_bar.array.0", "value")
+			if tc.mixedArrays {
+				setEnv(t, "MYPREFIX_bar.array.1.key", "value")
+			} else {
+				setEnv(t, "MYPREFIX_bar.array.1", "other")
+			}
+
+			assert.NoError(t, run(nil))
+			buf, err := ioutil.ReadFile(tempYaml)
+			require.NoError(t, err)
+			assert.Equal(t, strings.TrimSpace(tc.expect)+"\n", string(buf))
+		})
+	}
 }
 
 func TestRunTemplate(t *testing.T) {
