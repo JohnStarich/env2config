@@ -21,9 +21,10 @@ type Config struct {
 }
 
 type Opts struct {
-	File         string `required:"true"`
-	Format       string `required:"true"`
-	TemplateFile string `split_words:"true"`
+	File               string   `required:"true"`
+	Format             string   `required:"true"`
+	TemplateFile       string   `split_words:"true"`
+	TemplateDeleteKeys []string `split_words:"true"`
 
 	Inputs Values // NAME_OPTS_IN_*
 }
@@ -95,6 +96,11 @@ func (c Config) Write() error {
 		if err != nil {
 			return err
 		}
+		sortTemplateDeleteKeys(c.Opts.TemplateDeleteKeys)
+		for _, deleteKey := range c.Opts.TemplateDeleteKeys {
+			templateInt, _ := deleteKeyPath(template, parseKeyPath(deleteKey))
+			template = templateInt.(map[string]interface{})
+		}
 	}
 	values := c.writableValues(template)
 	f, err := os.OpenFile(c.Opts.File, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
@@ -138,22 +144,6 @@ func (c Config) writableValues(template map[string]interface{}) interface{} {
 	}
 
 	return mapsToArrays(result)
-}
-
-// parseKeyPath splits 'key' by '.' and returns the paths. Skips over escapes like '\.'.
-func parseKeyPath(key string) []string {
-	cursor := 0
-	var paths []string
-	for ix, r := range key {
-		if r == '.' && (ix == 0 || key[ix-1] != '\\') {
-			paths = append(paths, key[cursor:ix])
-			cursor = ix + 1
-		}
-	}
-	if cursor < len(key) {
-		paths = append(paths, key[cursor:])
-	}
-	return paths
 }
 
 func mapsToArrays(m map[string]interface{}) interface{} {
