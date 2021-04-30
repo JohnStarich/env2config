@@ -41,11 +41,13 @@ func parseValues(v interface{}) interface{} {
 	}
 
 	switch {
+	case str == "":
+		return nil
 	case str == "true":
 		return true
 	case str == "false":
 		return false
-	case strings.TrimFunc(str, unicode.IsNumber) == "":
+	case str != "" && strings.TrimFunc(str, unicode.IsNumber) == "":
 		integer, err := strconv.ParseInt(str, 10, 64)
 		if err != nil {
 			panic(err)

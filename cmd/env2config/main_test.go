@@ -41,6 +41,7 @@ bar:
         - key: value
     nested:
         key: value
+blank:
 `,
 		},
 		{
@@ -60,16 +61,17 @@ bar:
 		"nested": {
 			"key": "value"
 		}
-	}
+	},
+	"blank": ""
 }
 `,
 		},
 		{
 			format: "ini",
 			expect: `
-FOO  = bar
-bAz0 = bit
-
+FOO   = bar
+bAz0  = bit
+blank
 [bar]
   array = ["value", "other"]
 
@@ -83,6 +85,7 @@ bAz0 = bit
 			expect: `
 FOO = "bar"
 bAz0 = "bit"
+blank = ""
 
 [bar]
   array = ["value", "other"]
@@ -99,6 +102,7 @@ bAz0 = "bit"
 			setEnv(t, "MYPREFIX_OPTS_FORMAT", tc.format)
 			setEnv(t, "MYPREFIX_FOO", "bar")
 			setEnv(t, "MYPREFIX_bAz0", "bit")
+			setEnv(t, "MYPREFIX_blank", "")
 			setEnv(t, "MYPREFIX_bar.nested.key", "value")
 			setEnv(t, "MYPREFIX_bar.array.0", "value")
 			if tc.mixedArrays {
