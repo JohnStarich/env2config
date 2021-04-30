@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#375EAB">
+
+  <title>env2config - GoPages</title>
+
+<link type="text/css" rel="stylesheet" href="/lib/godoc/style.css">
+
+<script>window.initFuncs = [];</script>
+<script src="/lib/godoc/jquery.js" defer></script>
+
+
+
+
+<script>var goVersion = "go1.16.3";</script>
+<script src="/lib/godoc/godocs.js" defer></script>
+</head>
+<body>
+
+<div id='lowframe' style="position: fixed; bottom: 0; left: 0; height: 0; width: 100%; border-top: thin solid grey; background-color: white; overflow: auto;">
+...
+</div><!-- #lowframe -->
+
+<div id="topbar" class="wide"><div class="container">
+<div class="top-heading" id="heading-wide"><a href="/pkg/github.com/johnstarich/env2config/">GoPages | Auto-generated docs</a></div>
+<div class="top-heading" id="heading-narrow"><a href="/pkg/github.com/johnstarich/env2config/">GoPages</a></div>
+<a href="#" id="menu-button"><span id="menu-button-arrow">&#9661;</span></a>
+
+</div></div>
+
+
+
+<div id="page" class="wide">
+<div class="container">
+
+
+  <h1>
+    Package env2config
+    <span class="text-muted"></span>
+  </h1>
+
+
+
+
+
+
+
+<div id="nav"></div>
+
+
+<!--
+	Copyright 2009 The Go Authors. All rights reserved.
+	Use of this source code is governed by a BSD-style
+	license that can be found in the LICENSE file.
+-->
+<!--
+	Note: Static (i.e., not template-generated) href and id
+	attributes start with "pkg-" to make it impossible for
+	them to conflict with generated attributes (some of which
+	correspond to Go identifiers).
+-->
+
+	<script>
+	document.ANALYSIS_DATA = null;
+	document.CALLGRAPH = null;
+	</script>
+
+	
+		
+		<div id="short-nav">
+			<dl>
+			<dd><code>import "github.com/johnstarich/env2config"</code></dd>
+			</dl>
+			<dl>
+			<dd><a href="#pkg-overview" class="overviewLink">Overview</a></dd>
+			<dd><a href="#pkg-index" class="indexLink">Index</a></dd>
+			
+			
+				<dd><a href="#pkg-subdirectories">Subdirectories</a></dd>
+			
+			</dl>
+		</div>
+		<!-- The package's Name is printed as title by the top-level template -->
+		<div id="pkg-overview" class="toggleVisible">
+			<div class="collapsed">
+				<h2 class="toggleButton" title="Click to show Overview section">Overview ▹</h2>
+			</div>
+			<div class="expanded">
+				<h2 class="toggleButton" title="Click to hide Overview section">Overview ▾</h2>
+				
+				
+			</div>
+		</div>
+
+		<div id="pkg-index" class="toggleVisible">
+		<div class="collapsed">
+			<h2 class="toggleButton" title="Click to show Index section">Index ▹</h2>
+		</div>
+		<div class="expanded">
+			<h2 class="toggleButton" title="Click to hide Index section">Index ▾</h2>
+
+		<!-- Table of contents for API; must be named manual-nav to turn off auto nav. -->
+			<div id="manual-nav">
+			<dl>
+			
+			
+			
+				
+				<dd><a href="#RegisterFormat">func RegisterFormat(format string, marshaler Marshaler)</a></dd>
+			
+			
+				
+				<dd><a href="#Config">type Config</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#New">func New(name string) (Config, error)</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Config.Write">func (c Config) Write() error</a></dd>
+				
+			
+				
+				<dd><a href="#Marshaler">type Marshaler</a></dd>
+				
+				
+			
+				
+				<dd><a href="#Opts">type Opts</a></dd>
+				
+				
+			
+				
+				<dd><a href="#Unmarshaler">type Unmarshaler</a></dd>
+				
+				
+			
+				
+				<dd><a href="#Values">type Values</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Values.Set">func (v Values) Set(value string) error</a></dd>
+				
+			
+			
+			</dl>
+			</div><!-- #manual-nav -->
+
+		
+
+		
+			<h3>Package files</h3>
+			<p>
+			<span style="font-size:90%">
+			
+				<a href="/src/github.com/johnstarich/env2config/config.go">config.go</a>
+			
+				<a href="/src/github.com/johnstarich/env2config/env.go">env.go</a>
+			
+				<a href="/src/github.com/johnstarich/env2config/keys.go">keys.go</a>
+			
+				<a href="/src/github.com/johnstarich/env2config/registry.go">registry.go</a>
+			
+			</span>
+			</p>
+		
+		</div><!-- .expanded -->
+		</div><!-- #pkg-index -->
+
+		
+
+		
+		
+		
+			
+			
+			<h2 id="RegisterFormat">func <a href="/src/github.com/johnstarich/env2config/registry.go#L60">RegisterFormat</a>
+				<a class="permalink" href="#RegisterFormat">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func RegisterFormat(format <a href="/pkg/builtin/#string">string</a>, marshaler <a href="#Marshaler">Marshaler</a>)</pre>
+			
+			
+			
+
+		
+		
+			
+			
+			<h2 id="Config">type <a href="/src/github.com/johnstarich/env2config/config.go#L15">Config</a>
+				<a class="permalink" href="#Config">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type Config struct {
+<span id="Config.Name"></span>    Name   <a href="/pkg/builtin/#string">string</a>
+<span id="Config.Opts"></span>    Opts   <a href="#Opts">Opts</a> <span class="comment">// NAME_OPTS_*</span>
+<span id="Config.Values"></span>    Values <a href="#Values">Values</a>
+    <span class="comment">// contains filtered or unexported fields</span>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="New">func <a href="/src/github.com/johnstarich/env2config/config.go#L38">New</a>
+					<a class="permalink" href="#New">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func New(name <a href="/pkg/builtin/#string">string</a>) (<a href="#Config">Config</a>, <a href="/pkg/builtin/#error">error</a>)</pre>
+				
+				
+				
+			
+
+			
+				
+				<h3 id="Config.Write">func (Config) <a href="/src/github.com/johnstarich/env2config/config.go#L83">Write</a>
+					<a class="permalink" href="#Config.Write">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c <a href="#Config">Config</a>) Write() <a href="/pkg/builtin/#error">error</a></pre>
+				
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="Marshaler">type <a href="/src/github.com/johnstarich/env2config/registry.go#L10">Marshaler</a>
+				<a class="permalink" href="#Marshaler">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+Marshaler serializes the given value and writes it to the writer
+</p>
+
+			<pre>type Marshaler interface {
+    Marshal(<a href="/pkg/io/">io</a>.<a href="/pkg/io/#Writer">Writer</a>, interface{}) <a href="/pkg/builtin/#error">error</a>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="Opts">type <a href="/src/github.com/johnstarich/env2config/config.go#L23">Opts</a>
+				<a class="permalink" href="#Opts">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type Opts struct {
+<span id="Opts.File"></span>    File               <a href="/pkg/builtin/#string">string</a>   `required:&#34;true&#34;`
+<span id="Opts.Format"></span>    Format             <a href="/pkg/builtin/#string">string</a>   `required:&#34;true&#34;`
+<span id="Opts.TemplateFile"></span>    TemplateFile       <a href="/pkg/builtin/#string">string</a>   `split_words:&#34;true&#34;`
+<span id="Opts.TemplateDeleteKeys"></span>    TemplateDeleteKeys []<a href="/pkg/builtin/#string">string</a> `split_words:&#34;true&#34;`
+
+<span id="Opts.Inputs"></span>    Inputs <a href="#Values">Values</a> <span class="comment">// NAME_OPTS_IN_*</span>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="Unmarshaler">type <a href="/src/github.com/johnstarich/env2config/registry.go#L16">Unmarshaler</a>
+				<a class="permalink" href="#Unmarshaler">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+Unmarshaler deserializes contents of the reader into the provided value pointer.
+For a value to be mergeable, it must be of type map[string]interface{} or []interface{}.
+</p>
+
+			<pre>type Unmarshaler interface {
+    Unmarshal(<a href="/pkg/io/">io</a>.<a href="/pkg/io/#Reader">Reader</a>, interface{}) <a href="/pkg/builtin/#error">error</a>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="Values">type <a href="/src/github.com/johnstarich/env2config/config.go#L32">Values</a>
+				<a class="permalink" href="#Values">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type Values map[<a href="/pkg/builtin/#string">string</a>]<a href="/pkg/builtin/#string">string</a></pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="Values.Set">func (Values) <a href="/src/github.com/johnstarich/env2config/config.go#L36">Set</a>
+					<a class="permalink" href="#Values.Set">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (v <a href="#Values">Values</a>) Set(value <a href="/pkg/builtin/#string">string</a>) <a href="/pkg/builtin/#error">error</a></pre>
+				
+				
+				
+				
+			
+		
+	
+
+	
+
+
+
+
+
+	
+	
+		<h2 id="pkg-subdirectories">Subdirectories</h2>
+	
+	<div class="pkg-dir">
+		<table>
+			<tr>
+				<th class="pkg-name">Name</th>
+				<th class="pkg-synopsis">Synopsis</th>
+			</tr>
+
+			
+			<tr>
+				<td colspan="2"><a href="..">..</a></td>
+			</tr>
+			
+
+			
+				<tr>
+				
+					<td class="pkg-name" style="padding-left: 0px;">
+						<a href="cmd/">cmd</a>
+					</td>
+				
+					<td class="pkg-synopsis">
+						
+					</td>
+				</tr>
+			
+				<tr>
+				
+					<td class="pkg-name" style="padding-left: 20px;">
+						<a href="cmd/env2config/">env2config</a>
+					</td>
+				
+					<td class="pkg-synopsis">
+						
+					</td>
+				</tr>
+			
+				<tr>
+				
+					<td class="pkg-name" style="padding-left: 0px;">
+						<a href="formats/">formats</a>
+					</td>
+				
+					<td class="pkg-synopsis">
+						
+					</td>
+				</tr>
+			
+				<tr>
+				
+					<td class="pkg-name" style="padding-left: 20px;">
+						<a href="formats/ini/">ini</a>
+					</td>
+				
+					<td class="pkg-synopsis">
+						
+					</td>
+				</tr>
+			
+				<tr>
+				
+					<td class="pkg-name" style="padding-left: 20px;">
+						<a href="formats/json/">json</a>
+					</td>
+				
+					<td class="pkg-synopsis">
+						
+					</td>
+				</tr>
+			
+				<tr>
+				
+					<td class="pkg-name" style="padding-left: 20px;">
+						<a href="formats/toml/">toml</a>
+					</td>
+				
+					<td class="pkg-synopsis">
+						
+					</td>
+				</tr>
+			
+				<tr>
+				
+					<td class="pkg-name" style="padding-left: 20px;">
+						<a href="formats/yaml/">yaml</a>
+					</td>
+				
+					<td class="pkg-synopsis">
+						
+					</td>
+				</tr>
+			
+		</table>
+	</div>
+
+
+
+<div id="footer">
+Build version go1.16.3.<br>
+</div>
+
+</div><!-- .container -->
+</div><!-- #page -->
+</body>
+</html>
