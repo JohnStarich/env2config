@@ -13,6 +13,9 @@ jobs:
       script: make test
     - name: Build
       script: make build
+    - name: Docs
+      script: make deploy-docs
+      if: branch = master AND NOT type = pull_request
     - name: Release
       stage: release
       env:
