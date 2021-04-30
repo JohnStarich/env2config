@@ -26,6 +26,8 @@ build:
 docs:
 	go install github.com/johnstarich/go/gopages@v0.1
 	gopages \
+		-base /env2config \
+		-out "${PWD}" \
 		-gh-pages \
 		-gh-pages-user "${GIT_USER}" \
 		-gh-pages-token "${GIT_TOKEN}"
