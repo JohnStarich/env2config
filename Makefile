@@ -1,6 +1,18 @@
+LINT_VERSION=1.39.0
+
+.PHONY: lint-deps
+lint-deps:
+	@if ! which golangci-lint >/dev/null || [[ "$$(golangci-lint version 2>&1)" != *${LINT_VERSION}* ]]; then \
+		curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v${LINT_VERSION}; \
+	fi
+
 .PHONY: lint
-lint:
-	go vet ./...
+lint: lint-deps
+	golangci-lint run
+
+.PHONY: lint-fix
+lint-fix: lint-deps
+	golangci-lint run --fix
 
 .PHONY: test
 test:
