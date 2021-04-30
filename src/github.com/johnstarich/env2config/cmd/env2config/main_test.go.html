@@ -97,183 +97,187 @@
 <span id="L41" class="ln">    41  </span>        - key: value
 <span id="L42" class="ln">    42  </span>    nested:
 <span id="L43" class="ln">    43  </span>        key: value
-<span id="L44" class="ln">    44  </span>`,
-<span id="L45" class="ln">    45  </span>		},
-<span id="L46" class="ln">    46  </span>		{
-<span id="L47" class="ln">    47  </span>			format:      &#34;json&#34;,
-<span id="L48" class="ln">    48  </span>			mixedArrays: true,
-<span id="L49" class="ln">    49  </span>			expect: `
-<span id="L50" class="ln">    50  </span>{
-<span id="L51" class="ln">    51  </span>	&#34;FOO&#34;: &#34;bar&#34;,
-<span id="L52" class="ln">    52  </span>	&#34;bAz0&#34;: &#34;bit&#34;,
-<span id="L53" class="ln">    53  </span>	&#34;bar&#34;: {
-<span id="L54" class="ln">    54  </span>		&#34;array&#34;: [
-<span id="L55" class="ln">    55  </span>			&#34;value&#34;,
-<span id="L56" class="ln">    56  </span>			{
-<span id="L57" class="ln">    57  </span>				&#34;key&#34;: &#34;value&#34;
-<span id="L58" class="ln">    58  </span>			}
-<span id="L59" class="ln">    59  </span>		],
-<span id="L60" class="ln">    60  </span>		&#34;nested&#34;: {
-<span id="L61" class="ln">    61  </span>			&#34;key&#34;: &#34;value&#34;
-<span id="L62" class="ln">    62  </span>		}
-<span id="L63" class="ln">    63  </span>	}
-<span id="L64" class="ln">    64  </span>}
-<span id="L65" class="ln">    65  </span>`,
-<span id="L66" class="ln">    66  </span>		},
-<span id="L67" class="ln">    67  </span>		{
-<span id="L68" class="ln">    68  </span>			format: &#34;ini&#34;,
-<span id="L69" class="ln">    69  </span>			expect: `
-<span id="L70" class="ln">    70  </span>FOO  = bar
-<span id="L71" class="ln">    71  </span>bAz0 = bit
-<span id="L72" class="ln">    72  </span>
-<span id="L73" class="ln">    73  </span>[bar]
-<span id="L74" class="ln">    74  </span>  array = [&#34;value&#34;, &#34;other&#34;]
-<span id="L75" class="ln">    75  </span>
-<span id="L76" class="ln">    76  </span>[bar.nested]
-<span id="L77" class="ln">    77  </span>  key = value
-<span id="L78" class="ln">    78  </span>
-<span id="L79" class="ln">    79  </span>`,
-<span id="L80" class="ln">    80  </span>		},
-<span id="L81" class="ln">    81  </span>		{
-<span id="L82" class="ln">    82  </span>			format: &#34;toml&#34;,
-<span id="L83" class="ln">    83  </span>			expect: `
-<span id="L84" class="ln">    84  </span>FOO = &#34;bar&#34;
-<span id="L85" class="ln">    85  </span>bAz0 = &#34;bit&#34;
-<span id="L86" class="ln">    86  </span>
-<span id="L87" class="ln">    87  </span>[bar]
-<span id="L88" class="ln">    88  </span>  array = [&#34;value&#34;, &#34;other&#34;]
-<span id="L89" class="ln">    89  </span>  [bar.nested]
-<span id="L90" class="ln">    90  </span>    key = &#34;value&#34;
-<span id="L91" class="ln">    91  </span>`,
-<span id="L92" class="ln">    92  </span>		},
-<span id="L93" class="ln">    93  </span>	} {
-<span id="L94" class="ln">    94  </span>		t.Run(tc.format, func(t *testing.T) {
-<span id="L95" class="ln">    95  </span>			dir := t.TempDir()
-<span id="L96" class="ln">    96  </span>			tempYaml := filepath.Join(dir, &#34;some.yaml&#34;)
-<span id="L97" class="ln">    97  </span>			setEnv(t, &#34;E2C_CONFIGS&#34;, &#34;myprefix&#34;)
-<span id="L98" class="ln">    98  </span>			setEnv(t, &#34;MYPREFIX_OPTS_FILE&#34;, tempYaml)
-<span id="L99" class="ln">    99  </span>			setEnv(t, &#34;MYPREFIX_OPTS_FORMAT&#34;, tc.format)
-<span id="L100" class="ln">   100  </span>			setEnv(t, &#34;MYPREFIX_FOO&#34;, &#34;bar&#34;)
-<span id="L101" class="ln">   101  </span>			setEnv(t, &#34;MYPREFIX_bAz0&#34;, &#34;bit&#34;)
-<span id="L102" class="ln">   102  </span>			setEnv(t, &#34;MYPREFIX_bar.nested.key&#34;, &#34;value&#34;)
-<span id="L103" class="ln">   103  </span>			setEnv(t, &#34;MYPREFIX_bar.array.0&#34;, &#34;value&#34;)
-<span id="L104" class="ln">   104  </span>			if tc.mixedArrays {
-<span id="L105" class="ln">   105  </span>				setEnv(t, &#34;MYPREFIX_bar.array.1.key&#34;, &#34;value&#34;)
-<span id="L106" class="ln">   106  </span>			} else {
-<span id="L107" class="ln">   107  </span>				setEnv(t, &#34;MYPREFIX_bar.array.1&#34;, &#34;other&#34;)
-<span id="L108" class="ln">   108  </span>			}
-<span id="L109" class="ln">   109  </span>
-<span id="L110" class="ln">   110  </span>			assert.NoError(t, run(nil))
-<span id="L111" class="ln">   111  </span>			buf, err := ioutil.ReadFile(tempYaml)
-<span id="L112" class="ln">   112  </span>			require.NoError(t, err)
-<span id="L113" class="ln">   113  </span>			assert.Equal(t, strings.TrimLeft(tc.expect, &#34;\n&#34;), string(buf))
-<span id="L114" class="ln">   114  </span>		})
-<span id="L115" class="ln">   115  </span>	}
-<span id="L116" class="ln">   116  </span>}
-<span id="L117" class="ln">   117  </span>
-<span id="L118" class="ln">   118  </span>func TestRunTemplate(t *testing.T) {
-<span id="L119" class="ln">   119  </span>	dir := t.TempDir()
-<span id="L120" class="ln">   120  </span>	tmpYaml := filepath.Join(dir, &#34;some.yaml&#34;)
-<span id="L121" class="ln">   121  </span>	templateYaml := filepath.Join(dir, &#34;template.yaml&#34;)
-<span id="L122" class="ln">   122  </span>	setEnv(t, &#34;E2C_CONFIGS&#34;, &#34;myprefix&#34;)
-<span id="L123" class="ln">   123  </span>	setEnv(t, &#34;MYPREFIX_OPTS_FILE&#34;, tmpYaml)
-<span id="L124" class="ln">   124  </span>	setEnv(t, &#34;MYPREFIX_OPTS_FORMAT&#34;, &#34;yaml&#34;)
-<span id="L125" class="ln">   125  </span>	setEnv(t, &#34;MYPREFIX_OPTS_TEMPLATE_FILE&#34;, templateYaml)
-<span id="L126" class="ln">   126  </span>	setEnv(t, &#34;MYPREFIX_FOO&#34;, &#34;bar&#34;)
-<span id="L127" class="ln">   127  </span>	setEnv(t, &#34;MYPREFIX_bAz0&#34;, &#34;bit&#34;)
-<span id="L128" class="ln">   128  </span>	setEnv(t, &#34;MYPREFIX_bar.nested.key&#34;, &#34;value&#34;)
-<span id="L129" class="ln">   129  </span>	setEnv(t, &#34;MYPREFIX_bar.array.0.other_key&#34;, &#34;value&#34;)
-<span id="L130" class="ln">   130  </span>	setEnv(t, &#34;MYPREFIX_bar.array.1.key&#34;, &#34;value&#34;)
-<span id="L131" class="ln">   131  </span>	setEnv(t, &#34;MYPREFIX_bar.array.2&#34;, &#34;value&#34;)
-<span id="L132" class="ln">   132  </span>
-<span id="L133" class="ln">   133  </span>	require.NoError(t, ioutil.WriteFile(templateYaml, []byte(strings.TrimSpace(`
-<span id="L134" class="ln">   134  </span>FOO: not bar
-<span id="L135" class="ln">   135  </span>bar:
-<span id="L136" class="ln">   136  </span>    array:
-<span id="L137" class="ln">   137  </span>        - key: some default
-<span id="L138" class="ln">   138  </span>    default_key: default_value
-<span id="L139" class="ln">   139  </span>no_value:
-<span id="L140" class="ln">   140  </span>`)), 0600))
-<span id="L141" class="ln">   141  </span>
-<span id="L142" class="ln">   142  </span>	assert.NoError(t, run(nil))
-<span id="L143" class="ln">   143  </span>	buf, err := ioutil.ReadFile(tmpYaml)
-<span id="L144" class="ln">   144  </span>	require.NoError(t, err)
-<span id="L145" class="ln">   145  </span>	assert.Equal(t, strings.TrimSpace(`
-<span id="L146" class="ln">   146  </span>FOO: bar
-<span id="L147" class="ln">   147  </span>bAz0: bit
-<span id="L148" class="ln">   148  </span>bar:
-<span id="L149" class="ln">   149  </span>    array:
-<span id="L150" class="ln">   150  </span>        - key: some default
-<span id="L151" class="ln">   151  </span>          other_key: value
-<span id="L152" class="ln">   152  </span>        - key: value
-<span id="L153" class="ln">   153  </span>        - value
-<span id="L154" class="ln">   154  </span>    default_key: default_value
-<span id="L155" class="ln">   155  </span>    nested:
-<span id="L156" class="ln">   156  </span>        key: value
-<span id="L157" class="ln">   157  </span>no_value:
-<span id="L158" class="ln">   158  </span>`)+&#34;\n&#34;, string(buf))
-<span id="L159" class="ln">   159  </span>}
-<span id="L160" class="ln">   160  </span>
-<span id="L161" class="ln">   161  </span>func TestRunInputs(t *testing.T) {
-<span id="L162" class="ln">   162  </span>	t.Run(&#34;input missing&#34;, func(t *testing.T) {
-<span id="L163" class="ln">   163  </span>		dir := t.TempDir()
-<span id="L164" class="ln">   164  </span>		tempYaml := filepath.Join(dir, &#34;some.yaml&#34;)
-<span id="L165" class="ln">   165  </span>		setEnv(t, &#34;E2C_CONFIGS&#34;, &#34;myprefix&#34;)
-<span id="L166" class="ln">   166  </span>		setEnv(t, &#34;MYPREFIX_OPTS_FILE&#34;, tempYaml)
-<span id="L167" class="ln">   167  </span>		setEnv(t, &#34;MYPREFIX_OPTS_FORMAT&#34;, &#34;yaml&#34;)
-<span id="L168" class="ln">   168  </span>		setEnv(t, &#34;MYPREFIX_OPTS_IN_url&#34;, &#34;REQUIRED_URL&#34;)
-<span id="L169" class="ln">   169  </span>		err := run(nil)
-<span id="L170" class="ln">   170  </span>		require.Error(t, err)
-<span id="L171" class="ln">   171  </span>		assert.Equal(t, strings.TrimSpace(`
-<span id="L172" class="ln">   172  </span>Failed to generate configs:
-<span id="L173" class="ln">   173  </span>
-<span id="L174" class="ln">   174  </span>myprefix: Missing required environment variables: REQUIRED_URL
-<span id="L175" class="ln">   175  </span>`), err.Error())
-<span id="L176" class="ln">   176  </span>	})
+<span id="L44" class="ln">    44  </span>blank:
+<span id="L45" class="ln">    45  </span>`,
+<span id="L46" class="ln">    46  </span>		},
+<span id="L47" class="ln">    47  </span>		{
+<span id="L48" class="ln">    48  </span>			format:      &#34;json&#34;,
+<span id="L49" class="ln">    49  </span>			mixedArrays: true,
+<span id="L50" class="ln">    50  </span>			expect: `
+<span id="L51" class="ln">    51  </span>{
+<span id="L52" class="ln">    52  </span>	&#34;FOO&#34;: &#34;bar&#34;,
+<span id="L53" class="ln">    53  </span>	&#34;bAz0&#34;: &#34;bit&#34;,
+<span id="L54" class="ln">    54  </span>	&#34;bar&#34;: {
+<span id="L55" class="ln">    55  </span>		&#34;array&#34;: [
+<span id="L56" class="ln">    56  </span>			&#34;value&#34;,
+<span id="L57" class="ln">    57  </span>			{
+<span id="L58" class="ln">    58  </span>				&#34;key&#34;: &#34;value&#34;
+<span id="L59" class="ln">    59  </span>			}
+<span id="L60" class="ln">    60  </span>		],
+<span id="L61" class="ln">    61  </span>		&#34;nested&#34;: {
+<span id="L62" class="ln">    62  </span>			&#34;key&#34;: &#34;value&#34;
+<span id="L63" class="ln">    63  </span>		}
+<span id="L64" class="ln">    64  </span>	},
+<span id="L65" class="ln">    65  </span>	&#34;blank&#34;: &#34;&#34;
+<span id="L66" class="ln">    66  </span>}
+<span id="L67" class="ln">    67  </span>`,
+<span id="L68" class="ln">    68  </span>		},
+<span id="L69" class="ln">    69  </span>		{
+<span id="L70" class="ln">    70  </span>			format: &#34;ini&#34;,
+<span id="L71" class="ln">    71  </span>			expect: `
+<span id="L72" class="ln">    72  </span>FOO   = bar
+<span id="L73" class="ln">    73  </span>bAz0  = bit
+<span id="L74" class="ln">    74  </span>blank
+<span id="L75" class="ln">    75  </span>[bar]
+<span id="L76" class="ln">    76  </span>  array = [&#34;value&#34;, &#34;other&#34;]
+<span id="L77" class="ln">    77  </span>
+<span id="L78" class="ln">    78  </span>[bar.nested]
+<span id="L79" class="ln">    79  </span>  key = value
+<span id="L80" class="ln">    80  </span>
+<span id="L81" class="ln">    81  </span>`,
+<span id="L82" class="ln">    82  </span>		},
+<span id="L83" class="ln">    83  </span>		{
+<span id="L84" class="ln">    84  </span>			format: &#34;toml&#34;,
+<span id="L85" class="ln">    85  </span>			expect: `
+<span id="L86" class="ln">    86  </span>FOO = &#34;bar&#34;
+<span id="L87" class="ln">    87  </span>bAz0 = &#34;bit&#34;
+<span id="L88" class="ln">    88  </span>blank = &#34;&#34;
+<span id="L89" class="ln">    89  </span>
+<span id="L90" class="ln">    90  </span>[bar]
+<span id="L91" class="ln">    91  </span>  array = [&#34;value&#34;, &#34;other&#34;]
+<span id="L92" class="ln">    92  </span>  [bar.nested]
+<span id="L93" class="ln">    93  </span>    key = &#34;value&#34;
+<span id="L94" class="ln">    94  </span>`,
+<span id="L95" class="ln">    95  </span>		},
+<span id="L96" class="ln">    96  </span>	} {
+<span id="L97" class="ln">    97  </span>		t.Run(tc.format, func(t *testing.T) {
+<span id="L98" class="ln">    98  </span>			dir := t.TempDir()
+<span id="L99" class="ln">    99  </span>			tempYaml := filepath.Join(dir, &#34;some.yaml&#34;)
+<span id="L100" class="ln">   100  </span>			setEnv(t, &#34;E2C_CONFIGS&#34;, &#34;myprefix&#34;)
+<span id="L101" class="ln">   101  </span>			setEnv(t, &#34;MYPREFIX_OPTS_FILE&#34;, tempYaml)
+<span id="L102" class="ln">   102  </span>			setEnv(t, &#34;MYPREFIX_OPTS_FORMAT&#34;, tc.format)
+<span id="L103" class="ln">   103  </span>			setEnv(t, &#34;MYPREFIX_FOO&#34;, &#34;bar&#34;)
+<span id="L104" class="ln">   104  </span>			setEnv(t, &#34;MYPREFIX_bAz0&#34;, &#34;bit&#34;)
+<span id="L105" class="ln">   105  </span>			setEnv(t, &#34;MYPREFIX_blank&#34;, &#34;&#34;)
+<span id="L106" class="ln">   106  </span>			setEnv(t, &#34;MYPREFIX_bar.nested.key&#34;, &#34;value&#34;)
+<span id="L107" class="ln">   107  </span>			setEnv(t, &#34;MYPREFIX_bar.array.0&#34;, &#34;value&#34;)
+<span id="L108" class="ln">   108  </span>			if tc.mixedArrays {
+<span id="L109" class="ln">   109  </span>				setEnv(t, &#34;MYPREFIX_bar.array.1.key&#34;, &#34;value&#34;)
+<span id="L110" class="ln">   110  </span>			} else {
+<span id="L111" class="ln">   111  </span>				setEnv(t, &#34;MYPREFIX_bar.array.1&#34;, &#34;other&#34;)
+<span id="L112" class="ln">   112  </span>			}
+<span id="L113" class="ln">   113  </span>
+<span id="L114" class="ln">   114  </span>			assert.NoError(t, run(nil))
+<span id="L115" class="ln">   115  </span>			buf, err := ioutil.ReadFile(tempYaml)
+<span id="L116" class="ln">   116  </span>			require.NoError(t, err)
+<span id="L117" class="ln">   117  </span>			assert.Equal(t, strings.TrimLeft(tc.expect, &#34;\n&#34;), string(buf))
+<span id="L118" class="ln">   118  </span>		})
+<span id="L119" class="ln">   119  </span>	}
+<span id="L120" class="ln">   120  </span>}
+<span id="L121" class="ln">   121  </span>
+<span id="L122" class="ln">   122  </span>func TestRunTemplate(t *testing.T) {
+<span id="L123" class="ln">   123  </span>	dir := t.TempDir()
+<span id="L124" class="ln">   124  </span>	tmpYaml := filepath.Join(dir, &#34;some.yaml&#34;)
+<span id="L125" class="ln">   125  </span>	templateYaml := filepath.Join(dir, &#34;template.yaml&#34;)
+<span id="L126" class="ln">   126  </span>	setEnv(t, &#34;E2C_CONFIGS&#34;, &#34;myprefix&#34;)
+<span id="L127" class="ln">   127  </span>	setEnv(t, &#34;MYPREFIX_OPTS_FILE&#34;, tmpYaml)
+<span id="L128" class="ln">   128  </span>	setEnv(t, &#34;MYPREFIX_OPTS_FORMAT&#34;, &#34;yaml&#34;)
+<span id="L129" class="ln">   129  </span>	setEnv(t, &#34;MYPREFIX_OPTS_TEMPLATE_FILE&#34;, templateYaml)
+<span id="L130" class="ln">   130  </span>	setEnv(t, &#34;MYPREFIX_FOO&#34;, &#34;bar&#34;)
+<span id="L131" class="ln">   131  </span>	setEnv(t, &#34;MYPREFIX_bAz0&#34;, &#34;bit&#34;)
+<span id="L132" class="ln">   132  </span>	setEnv(t, &#34;MYPREFIX_bar.nested.key&#34;, &#34;value&#34;)
+<span id="L133" class="ln">   133  </span>	setEnv(t, &#34;MYPREFIX_bar.array.0.other_key&#34;, &#34;value&#34;)
+<span id="L134" class="ln">   134  </span>	setEnv(t, &#34;MYPREFIX_bar.array.1.key&#34;, &#34;value&#34;)
+<span id="L135" class="ln">   135  </span>	setEnv(t, &#34;MYPREFIX_bar.array.2&#34;, &#34;value&#34;)
+<span id="L136" class="ln">   136  </span>
+<span id="L137" class="ln">   137  </span>	require.NoError(t, ioutil.WriteFile(templateYaml, []byte(strings.TrimSpace(`
+<span id="L138" class="ln">   138  </span>FOO: not bar
+<span id="L139" class="ln">   139  </span>bar:
+<span id="L140" class="ln">   140  </span>    array:
+<span id="L141" class="ln">   141  </span>        - key: some default
+<span id="L142" class="ln">   142  </span>    default_key: default_value
+<span id="L143" class="ln">   143  </span>no_value:
+<span id="L144" class="ln">   144  </span>`)), 0600))
+<span id="L145" class="ln">   145  </span>
+<span id="L146" class="ln">   146  </span>	assert.NoError(t, run(nil))
+<span id="L147" class="ln">   147  </span>	buf, err := ioutil.ReadFile(tmpYaml)
+<span id="L148" class="ln">   148  </span>	require.NoError(t, err)
+<span id="L149" class="ln">   149  </span>	assert.Equal(t, strings.TrimSpace(`
+<span id="L150" class="ln">   150  </span>FOO: bar
+<span id="L151" class="ln">   151  </span>bAz0: bit
+<span id="L152" class="ln">   152  </span>bar:
+<span id="L153" class="ln">   153  </span>    array:
+<span id="L154" class="ln">   154  </span>        - key: some default
+<span id="L155" class="ln">   155  </span>          other_key: value
+<span id="L156" class="ln">   156  </span>        - key: value
+<span id="L157" class="ln">   157  </span>        - value
+<span id="L158" class="ln">   158  </span>    default_key: default_value
+<span id="L159" class="ln">   159  </span>    nested:
+<span id="L160" class="ln">   160  </span>        key: value
+<span id="L161" class="ln">   161  </span>no_value:
+<span id="L162" class="ln">   162  </span>`)+&#34;\n&#34;, string(buf))
+<span id="L163" class="ln">   163  </span>}
+<span id="L164" class="ln">   164  </span>
+<span id="L165" class="ln">   165  </span>func TestRunInputs(t *testing.T) {
+<span id="L166" class="ln">   166  </span>	t.Run(&#34;input missing&#34;, func(t *testing.T) {
+<span id="L167" class="ln">   167  </span>		dir := t.TempDir()
+<span id="L168" class="ln">   168  </span>		tempYaml := filepath.Join(dir, &#34;some.yaml&#34;)
+<span id="L169" class="ln">   169  </span>		setEnv(t, &#34;E2C_CONFIGS&#34;, &#34;myprefix&#34;)
+<span id="L170" class="ln">   170  </span>		setEnv(t, &#34;MYPREFIX_OPTS_FILE&#34;, tempYaml)
+<span id="L171" class="ln">   171  </span>		setEnv(t, &#34;MYPREFIX_OPTS_FORMAT&#34;, &#34;yaml&#34;)
+<span id="L172" class="ln">   172  </span>		setEnv(t, &#34;MYPREFIX_OPTS_IN_url&#34;, &#34;REQUIRED_URL&#34;)
+<span id="L173" class="ln">   173  </span>		err := run(nil)
+<span id="L174" class="ln">   174  </span>		require.Error(t, err)
+<span id="L175" class="ln">   175  </span>		assert.Equal(t, strings.TrimSpace(`
+<span id="L176" class="ln">   176  </span>Failed to generate configs:
 <span id="L177" class="ln">   177  </span>
-<span id="L178" class="ln">   178  </span>	t.Run(&#34;input provided&#34;, func(t *testing.T) {
-<span id="L179" class="ln">   179  </span>		dir := t.TempDir()
-<span id="L180" class="ln">   180  </span>		tempYaml := filepath.Join(dir, &#34;some.yaml&#34;)
-<span id="L181" class="ln">   181  </span>		setEnv(t, &#34;E2C_CONFIGS&#34;, &#34;myprefix&#34;)
-<span id="L182" class="ln">   182  </span>		setEnv(t, &#34;MYPREFIX_OPTS_FILE&#34;, tempYaml)
-<span id="L183" class="ln">   183  </span>		setEnv(t, &#34;MYPREFIX_OPTS_FORMAT&#34;, &#34;yaml&#34;)
-<span id="L184" class="ln">   184  </span>		setEnv(t, &#34;MYPREFIX_OPTS_IN_url&#34;, &#34;REQUIRED_URL&#34;)
-<span id="L185" class="ln">   185  </span>		setEnv(t, &#34;REQUIRED_URL&#34;, &#34;http://localhost/&#34;)
-<span id="L186" class="ln">   186  </span>
-<span id="L187" class="ln">   187  </span>		assert.NoError(t, run(nil))
-<span id="L188" class="ln">   188  </span>		buf, err := ioutil.ReadFile(tempYaml)
-<span id="L189" class="ln">   189  </span>		require.NoError(t, err)
-<span id="L190" class="ln">   190  </span>		assert.Equal(t, strings.TrimSpace(`
-<span id="L191" class="ln">   191  </span>url: http://localhost/
-<span id="L192" class="ln">   192  </span>`)+&#34;\n&#34;, string(buf))
-<span id="L193" class="ln">   193  </span>	})
-<span id="L194" class="ln">   194  </span>}
-<span id="L195" class="ln">   195  </span>
-<span id="L196" class="ln">   196  </span>func TestRunTypes(t *testing.T) {
-<span id="L197" class="ln">   197  </span>	dir := t.TempDir()
-<span id="L198" class="ln">   198  </span>	tmpYaml := filepath.Join(dir, &#34;some.yaml&#34;)
-<span id="L199" class="ln">   199  </span>	setEnv(t, &#34;E2C_CONFIGS&#34;, &#34;myprefix&#34;)
-<span id="L200" class="ln">   200  </span>	setEnv(t, &#34;MYPREFIX_OPTS_FILE&#34;, tmpYaml)
-<span id="L201" class="ln">   201  </span>	setEnv(t, &#34;MYPREFIX_OPTS_FORMAT&#34;, &#34;yaml&#34;)
-<span id="L202" class="ln">   202  </span>	setEnv(t, &#34;MYPREFIX_bar.nested.key&#34;, &#34;value&#34;)
-<span id="L203" class="ln">   203  </span>	setEnv(t, &#34;MYPREFIX_bar.array.0.other_key&#34;, &#34;1&#34;)
-<span id="L204" class="ln">   204  </span>	setEnv(t, &#34;MYPREFIX_bar.array.1.key&#34;, &#34;true&#34;)
-<span id="L205" class="ln">   205  </span>	setEnv(t, &#34;MYPREFIX_bar.array.2&#34;, &#34;42&#34;)
-<span id="L206" class="ln">   206  </span>
-<span id="L207" class="ln">   207  </span>	assert.NoError(t, run(nil))
-<span id="L208" class="ln">   208  </span>	buf, err := ioutil.ReadFile(tmpYaml)
-<span id="L209" class="ln">   209  </span>	require.NoError(t, err)
-<span id="L210" class="ln">   210  </span>	assert.Equal(t, strings.TrimSpace(`
-<span id="L211" class="ln">   211  </span>bar:
-<span id="L212" class="ln">   212  </span>    array:
-<span id="L213" class="ln">   213  </span>        - other_key: 1
-<span id="L214" class="ln">   214  </span>        - key: true
-<span id="L215" class="ln">   215  </span>        - 42
-<span id="L216" class="ln">   216  </span>    nested:
-<span id="L217" class="ln">   217  </span>        key: value
-<span id="L218" class="ln">   218  </span>`)+&#34;\n&#34;, string(buf))
-<span id="L219" class="ln">   219  </span>}
-<span id="L220" class="ln">   220  </span>
+<span id="L178" class="ln">   178  </span>myprefix: Missing required environment variables: REQUIRED_URL
+<span id="L179" class="ln">   179  </span>`), err.Error())
+<span id="L180" class="ln">   180  </span>	})
+<span id="L181" class="ln">   181  </span>
+<span id="L182" class="ln">   182  </span>	t.Run(&#34;input provided&#34;, func(t *testing.T) {
+<span id="L183" class="ln">   183  </span>		dir := t.TempDir()
+<span id="L184" class="ln">   184  </span>		tempYaml := filepath.Join(dir, &#34;some.yaml&#34;)
+<span id="L185" class="ln">   185  </span>		setEnv(t, &#34;E2C_CONFIGS&#34;, &#34;myprefix&#34;)
+<span id="L186" class="ln">   186  </span>		setEnv(t, &#34;MYPREFIX_OPTS_FILE&#34;, tempYaml)
+<span id="L187" class="ln">   187  </span>		setEnv(t, &#34;MYPREFIX_OPTS_FORMAT&#34;, &#34;yaml&#34;)
+<span id="L188" class="ln">   188  </span>		setEnv(t, &#34;MYPREFIX_OPTS_IN_url&#34;, &#34;REQUIRED_URL&#34;)
+<span id="L189" class="ln">   189  </span>		setEnv(t, &#34;REQUIRED_URL&#34;, &#34;http://localhost/&#34;)
+<span id="L190" class="ln">   190  </span>
+<span id="L191" class="ln">   191  </span>		assert.NoError(t, run(nil))
+<span id="L192" class="ln">   192  </span>		buf, err := ioutil.ReadFile(tempYaml)
+<span id="L193" class="ln">   193  </span>		require.NoError(t, err)
+<span id="L194" class="ln">   194  </span>		assert.Equal(t, strings.TrimSpace(`
+<span id="L195" class="ln">   195  </span>url: http://localhost/
+<span id="L196" class="ln">   196  </span>`)+&#34;\n&#34;, string(buf))
+<span id="L197" class="ln">   197  </span>	})
+<span id="L198" class="ln">   198  </span>}
+<span id="L199" class="ln">   199  </span>
+<span id="L200" class="ln">   200  </span>func TestRunTypes(t *testing.T) {
+<span id="L201" class="ln">   201  </span>	dir := t.TempDir()
+<span id="L202" class="ln">   202  </span>	tmpYaml := filepath.Join(dir, &#34;some.yaml&#34;)
+<span id="L203" class="ln">   203  </span>	setEnv(t, &#34;E2C_CONFIGS&#34;, &#34;myprefix&#34;)
+<span id="L204" class="ln">   204  </span>	setEnv(t, &#34;MYPREFIX_OPTS_FILE&#34;, tmpYaml)
+<span id="L205" class="ln">   205  </span>	setEnv(t, &#34;MYPREFIX_OPTS_FORMAT&#34;, &#34;yaml&#34;)
+<span id="L206" class="ln">   206  </span>	setEnv(t, &#34;MYPREFIX_bar.nested.key&#34;, &#34;value&#34;)
+<span id="L207" class="ln">   207  </span>	setEnv(t, &#34;MYPREFIX_bar.array.0.other_key&#34;, &#34;1&#34;)
+<span id="L208" class="ln">   208  </span>	setEnv(t, &#34;MYPREFIX_bar.array.1.key&#34;, &#34;true&#34;)
+<span id="L209" class="ln">   209  </span>	setEnv(t, &#34;MYPREFIX_bar.array.2&#34;, &#34;42&#34;)
+<span id="L210" class="ln">   210  </span>
+<span id="L211" class="ln">   211  </span>	assert.NoError(t, run(nil))
+<span id="L212" class="ln">   212  </span>	buf, err := ioutil.ReadFile(tmpYaml)
+<span id="L213" class="ln">   213  </span>	require.NoError(t, err)
+<span id="L214" class="ln">   214  </span>	assert.Equal(t, strings.TrimSpace(`
+<span id="L215" class="ln">   215  </span>bar:
+<span id="L216" class="ln">   216  </span>    array:
+<span id="L217" class="ln">   217  </span>        - other_key: 1
+<span id="L218" class="ln">   218  </span>        - key: true
+<span id="L219" class="ln">   219  </span>        - 42
+<span id="L220" class="ln">   220  </span>    nested:
+<span id="L221" class="ln">   221  </span>        key: value
+<span id="L222" class="ln">   222  </span>`)+&#34;\n&#34;, string(buf))
+<span id="L223" class="ln">   223  </span>}
+<span id="L224" class="ln">   224  </span>
 </pre><p></p>
 
 <div id="footer">

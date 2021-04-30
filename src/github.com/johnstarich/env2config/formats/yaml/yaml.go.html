@@ -97,21 +97,23 @@
 <span id="L41" class="ln">    41  </span>	}
 <span id="L42" class="ln">    42  </span>
 <span id="L43" class="ln">    43  </span>	switch {
-<span id="L44" class="ln">    44  </span>	case str == &#34;true&#34;:
-<span id="L45" class="ln">    45  </span>		return true
-<span id="L46" class="ln">    46  </span>	case str == &#34;false&#34;:
-<span id="L47" class="ln">    47  </span>		return false
-<span id="L48" class="ln">    48  </span>	case strings.TrimFunc(str, unicode.IsNumber) == &#34;&#34;:
-<span id="L49" class="ln">    49  </span>		integer, err := strconv.ParseInt(str, 10, 64)
-<span id="L50" class="ln">    50  </span>		if err != nil {
-<span id="L51" class="ln">    51  </span>			panic(err)
-<span id="L52" class="ln">    52  </span>		}
-<span id="L53" class="ln">    53  </span>		return integer
-<span id="L54" class="ln">    54  </span>	default:
-<span id="L55" class="ln">    55  </span>		return v
-<span id="L56" class="ln">    56  </span>	}
-<span id="L57" class="ln">    57  </span>}
-<span id="L58" class="ln">    58  </span>
+<span id="L44" class="ln">    44  </span>	case str == &#34;&#34;:
+<span id="L45" class="ln">    45  </span>		return nil
+<span id="L46" class="ln">    46  </span>	case str == &#34;true&#34;:
+<span id="L47" class="ln">    47  </span>		return true
+<span id="L48" class="ln">    48  </span>	case str == &#34;false&#34;:
+<span id="L49" class="ln">    49  </span>		return false
+<span id="L50" class="ln">    50  </span>	case str != &#34;&#34; &amp;&amp; strings.TrimFunc(str, unicode.IsNumber) == &#34;&#34;:
+<span id="L51" class="ln">    51  </span>		integer, err := strconv.ParseInt(str, 10, 64)
+<span id="L52" class="ln">    52  </span>		if err != nil {
+<span id="L53" class="ln">    53  </span>			panic(err)
+<span id="L54" class="ln">    54  </span>		}
+<span id="L55" class="ln">    55  </span>		return integer
+<span id="L56" class="ln">    56  </span>	default:
+<span id="L57" class="ln">    57  </span>		return v
+<span id="L58" class="ln">    58  </span>	}
+<span id="L59" class="ln">    59  </span>}
+<span id="L60" class="ln">    60  </span>
 </pre><p></p>
 
 <div id="footer">
